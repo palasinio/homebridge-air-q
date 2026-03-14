@@ -11,6 +11,7 @@ on the [Homebridge Platform Plugin Template](https://github.com/homebridge/homeb
 This plugin was developed to be installed and configured with
 [homebridge-config-ui-x](https://www.npmjs.com/package/homebridge-config-ui-x).
 It can be found by searching for `air-Q` in the `Plugins` section.
+It supports Homebridge `^1.1.0` and `^2.0.0`.
 
 ## Working Principle
 

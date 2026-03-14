@@ -13,6 +13,11 @@ This plugin was developed to be installed and configured with
 It can be found by searching for `air-Q` in the `Plugins` section.
 It supports Homebridge `^1.1.0` and `^2.0.0`.
 
+## Compatibility
+
+This plugin supports Homebridge 1 and Homebridge 2.
+No configuration changes are required when using Homebridge 2.
+
 ## Working Principle
 
 1. The plugin performs an mDNS scan to find all air-Qs in the connected network.

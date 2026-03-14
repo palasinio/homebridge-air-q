@@ -10,6 +10,7 @@ export class AirQPlatform implements DynamicPlatformPlugin {
 
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
+  private readonly pendingAccessories = new Set<string>();
 
   constructor(
     public readonly log: Logger,
@@ -118,6 +119,12 @@ export class AirQPlatform implements DynamicPlatformPlugin {
                 const uuid = this.api.hap.uuid.generate(mdnsService.txt.id);
                 this.log.info('\tUUID:', uuid);
 
+                if (this.pendingAccessories.has(uuid)) {
+                  this.log.debug('Skipping accessory update while setup is already in progress:', name);
+                  return;
+                }
+                this.pendingAccessories.add(uuid);
+
                 // see if an accessory with the same uuid has already been registered and restored from
                 // the cached devices we stored in the `configureAccessory` method above
                 const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
@@ -130,6 +137,7 @@ export class AirQPlatform implements DynamicPlatformPlugin {
                   // as a new device
 
                   this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+                  this.accessories.splice(this.accessories.indexOf(existingAccessory), 1);
                   this.log.debug('Removed existing accessory from cache:', existingAccessory.displayName);
 
                 }
@@ -150,7 +158,12 @@ export class AirQPlatform implements DynamicPlatformPlugin {
 
                 // link the accessory to your platform
                 this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+                this.accessories.push(accessory);
               }
+            })
+            .finally(() => {
+              const uuid = this.api.hap.uuid.generate(mdnsService.txt.id);
+              this.pendingAccessories.delete(uuid);
             })
             .catch(error => {
               this.log.error(error);

@@ -38,7 +38,7 @@ export class AirQPlatform implements DynamicPlatformPlugin {
   }
 
   discoverDevices() {
-    const browser = (Bonjour() as any).find({ type: 'http' });
+    const browser = (new Bonjour() as any).find({ type: 'http' });
 
     browser.on('up', this.foundAirQ.bind(this));
 

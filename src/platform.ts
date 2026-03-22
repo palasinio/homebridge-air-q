@@ -130,16 +130,10 @@ export class AirQPlatform implements DynamicPlatformPlugin {
                 const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
                 if (existingAccessory) {
-                  // the accessory already exists
-                  // as the bug message "Error: Cannot add a Service with the same UUID '...'
-                  // and subtype '...' as another Service in this Accessory."
-                  // could not be fixed yet, the device is removed from cache and then added again
-                  // as a new device
-
-                  this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-                  this.accessories.splice(this.accessories.indexOf(existingAccessory), 1);
-                  this.log.debug('Removed existing accessory from cache:', existingAccessory.displayName);
-
+                  this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+                  existingAccessory.context.device = device;
+                  new AirQPlatformAccessory(this, existingAccessory);
+                  return;
                 }
 
                 // the accessory does not yet exist, so we need to create it

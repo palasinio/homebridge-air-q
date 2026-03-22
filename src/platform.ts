@@ -67,6 +67,13 @@ export class AirQPlatform implements DynamicPlatformPlugin {
       // choose the corresponding device from homebridge plugin configuration
       for (const i in this.config.airqList) {
         if (this.config.airqList[i].serialNumber === shortId) {
+          const uuid = this.api.hap.uuid.generate(mdnsService.txt.id);
+
+          if (this.pendingAccessories.has(uuid)) {
+            this.log.debug('Skipping accessory update while setup is already in progress:', name);
+            return;
+          }
+          this.pendingAccessories.add(uuid);
 
           // set password as defined in user configuration
           const password = this.config.airqList[i].password;
@@ -116,14 +123,7 @@ export class AirQPlatform implements DynamicPlatformPlugin {
                 // generate a unique id for the accessory this should be generated from
                 // something globally unique, but constant, for example, the device serial
                 // number or MAC address
-                const uuid = this.api.hap.uuid.generate(mdnsService.txt.id);
                 this.log.info('\tUUID:', uuid);
-
-                if (this.pendingAccessories.has(uuid)) {
-                  this.log.debug('Skipping accessory update while setup is already in progress:', name);
-                  return;
-                }
-                this.pendingAccessories.add(uuid);
 
                 // see if an accessory with the same uuid has already been registered and restored from
                 // the cached devices we stored in the `configureAccessory` method above
@@ -162,7 +162,6 @@ export class AirQPlatform implements DynamicPlatformPlugin {
               }
             })
             .finally(() => {
-              const uuid = this.api.hap.uuid.generate(mdnsService.txt.id);
               this.pendingAccessories.delete(uuid);
             })
             .catch(error => {

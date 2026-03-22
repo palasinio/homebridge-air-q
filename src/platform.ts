@@ -132,6 +132,13 @@ export class AirQPlatform implements DynamicPlatformPlugin {
                 if (existingAccessory) {
                   this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
                   existingAccessory.context.device = device;
+
+                  for (const service of existingAccessory.services) {
+                    if (service.UUID !== this.Service.AccessoryInformation.UUID) {
+                      existingAccessory.removeService(service);
+                    }
+                  }
+
                   new AirQPlatformAccessory(this, existingAccessory);
                   return;
                 }
